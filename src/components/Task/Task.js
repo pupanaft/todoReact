@@ -16,7 +16,7 @@ export default class Task extends Component{
                 <input 
                     className="toggle"  
                     type="checkbox"
-                    id ={id}
+                    id = {id}
                     onChange={onToggleDone}
                 />
                 <label for ={id}>

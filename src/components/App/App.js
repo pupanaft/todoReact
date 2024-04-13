@@ -12,7 +12,8 @@ export default class App extends Component{
             {taskClass:"completed" , description: "Completed task", id:1, checked:false},
             {taskClass:"editing" , description: "Editing task", id:2, checked:false},
             {taskClass:"view" , description: "Active task", id:3, checked:false}
-        ]
+        ],
+        selectedFilter:'All'
     }
     onDeleteitem = (id) => {
         this.setState(({todoData}) => {
@@ -26,21 +27,16 @@ export default class App extends Component{
             }
         })
     }
-    addTask = (event) => {
-        if(event.key === 'Enter'){
-            const nevItem = {
-                taskClass:"view" , description: ";pup ", id:this.newId++
+    onItemAdded = (label) => {
+       this.setState((state)=>{
+            const item = {
+                taskClass:"view" ,
+                description: label,
+                id:++this.newId,
+                checked:false
             }
-            this.setState(({todoData}) =>{
-                const newArray =[
-                    ...todoData,
-                    nevItem
-                ]
-                return{
-                    todoData:newArray
-                }
-            })
-        }
+            return {todoData:[...state.todoData, item]}
+       })
     }
     onToggleDone = (id) => {
         this.setState(({todoData}) => {
@@ -54,22 +50,49 @@ export default class App extends Component{
             ]
             return {
                 todoData:newArray
-            }
-            
-
-            
+            }  
         })
 
     }
+    clear = () =>{
+        this.setState(()=>{
+            const newData = []
+            return{todoData:newData}
+        })
+    }
+    filterChange = (id) =>{
+        
+        this.setState(() =>{
+            const newFilter = id
+            return{
+                selectedFilter:newFilter
+            }
+        })
+    }
+    activeFilter = (todoData, selectedFilter) => {
+        if (selectedFilter === 'All'){
+            return todoData
+        }else if (selectedFilter === 'Active'){
+            return todoData.filter((Data) => !Data.checked)
+        }else if (selectedFilter === 'Completed'){
+            return todoData.filter((Data) => Data.checked)
+        }
+    }
     render(){
+        const {todoData, selectedFilter} = this.state
+        const itemLeft = todoData.filter((item) => !item.checked).length
+        const visibleTodos = this.activeFilter(todoData, selectedFilter)
         return (
             <section class="todoapp">
-                <NewTaskForm addTask={this.addTask}/>
+                <NewTaskForm onItemAdded={this.onItemAdded}/>
                 <section class="main">
-                    <TaskList todos = {this.state.todoData}
+                    <TaskList todos = {visibleTodos}
                      onDeleted={this.onDeleteitem}
                      onToggleDone={this.onToggleDone}/>
-                    <Footer/>
+                    <Footer itemLeft={itemLeft}
+                            clear = {this.clear}
+                            selectedFilter ={selectedFilter}
+                            filterChange={this.filterChange}/>
                 </section>
             </section>
           );
